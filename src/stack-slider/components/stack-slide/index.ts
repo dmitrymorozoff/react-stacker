@@ -9,8 +9,6 @@ export const StackSlide = styled.div`
     transform-style: preserve-3d;
     text-align: center;
     border: 1px solid #ddd;
-    -webkit-transform-style: preserve-3d;
-    -moz-transform-style: preserve-3d;
     box-sizing: border-box;
     border-radius: 3px;
     transform: ${(props: any) =>

@@ -1,18 +1,18 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { StackCarousel, StackSlide } from "../src";
+import { StackSlide, StackSlider } from "../src";
 
 export class App extends React.Component<{}, {}> {
     public render() {
         return (
             <div className="outer">
                 <div className="wrapper">
-                    <StackCarousel>
+                    <StackSlider>
                         <StackSlide>1</StackSlide>
-                        <StackSlide>1</StackSlide>
-                        <StackSlide>1</StackSlide>
-                        <StackSlide>1</StackSlide>
-                    </StackCarousel>
+                        <StackSlide>2</StackSlide>
+                        <StackSlide>3</StackSlide>
+                        <StackSlide>4</StackSlide>
+                    </StackSlider>
                 </div>
             </div>
         );
