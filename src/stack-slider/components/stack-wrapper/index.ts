@@ -1,9 +1,10 @@
 import styled from "styled-components";
 
 export const StackWrapper = styled.div`
-    height: 360px;
-    width: 240px;
+    height: 290px;
+    width: 230px;
     padding: 40px;
     perspective: 1000px;
     transition: ease-in-out 0.2s;
+    box-sizing: border-box;
 `;
