@@ -4,6 +4,8 @@ interface ISlide {
     translateY: number;
     translateZ: number;
     rotateZ: number;
+    zIndex: number;
+    id: number;
 }
 
 export class SlideHelper {
@@ -12,10 +14,14 @@ export class SlideHelper {
     private translateY: number = 0;
     private translateZ: number = 0;
     private rotateZ: number = 0;
+    private zIndex: number = 0;
+    private id: number;
 
-    constructor(translateY: number, translateZ: number) {
+    constructor(translateY: number, translateZ: number, zIndex: number, id: number) {
         this.translateY = translateY;
         this.translateZ = translateZ;
+        this.zIndex = zIndex;
+        this.id = id;
     }
 
     public setTransitionDuration = (value: number) => {
@@ -38,6 +44,11 @@ export class SlideHelper {
         this.rotateZ = value;
     };
 
+    public setZIndex = (value: number) => {
+        this.zIndex = value;
+        console.log("zIndex", value);
+    };
+
     public getSliderInfo = (): ISlide => {
         return {
             transitionDuration: this.transitionDuration,
@@ -45,6 +56,8 @@ export class SlideHelper {
             translateY: this.translateY,
             translateZ: this.translateZ,
             rotateZ: this.rotateZ,
+            zIndex: this.zIndex,
+            id: this.id,
         };
     };
 }
