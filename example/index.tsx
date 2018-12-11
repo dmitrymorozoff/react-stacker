@@ -8,10 +8,18 @@ export class App extends React.Component<{}, {}> {
             <div className="outer">
                 <div className="wrapper">
                     <StackSlider>
-                        <StackSlide>Slide 1</StackSlide>
-                        <StackSlide>Slide 2</StackSlide>
-                        <StackSlide>Slide 3</StackSlide>
-                        <StackSlide>Slide 4</StackSlide>
+                        <StackSlide>
+                            <span style={{ fontSize: "26px", color: "#000" }}>Slide 1</span>
+                        </StackSlide>
+                        <StackSlide>
+                            <span style={{ fontSize: "26px", color: "#000" }}>Slide 2</span>
+                        </StackSlide>
+                        <StackSlide>
+                            <span style={{ fontSize: "26px", color: "#000" }}>Slide 3</span>
+                        </StackSlide>
+                        <StackSlide>
+                            <span style={{ fontSize: "26px", color: "#000" }}>Slide 4</span>
+                        </StackSlide>
                     </StackSlider>
                 </div>
             </div>

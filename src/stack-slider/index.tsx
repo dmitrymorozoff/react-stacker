@@ -1,44 +1,21 @@
 import * as React from "react";
+// import { StackLeftArrow, StackRightArrow } from "./components/stack-arrows/index";
+import { StackPagination } from "./components/stack-pagination/index";
 import { ISlideProps } from "./components/stack-slide/index";
 import { StackWrapper } from "./components/stack-wrapper";
+import { IStackSliderProps, IStackSliderSlide, IStackSliderState } from "./interfaces";
 import { deepClone } from "./utils/deep-clone";
 import { shiftArray } from "./utils/shift-array";
 
-interface IProps {
-    zDistance: number;
-    yDistance: number;
-    transitionDuration: number;
-}
-
-interface ISlide {
-    translateX: number;
-    translateY: number;
-    translateZ: number;
-    transition: string;
-    rotateZ: number;
-    zIndex: number;
-    opacity: number;
-}
-
-interface IState {
-    initX: number;
-    transX: number;
-    transY: number;
-    rotZ: number;
-    countSlides: number;
-    currentActiveSlide: number;
-    slides: ISlide[];
-}
-
-export class StackSlider extends React.PureComponent<IProps, IState> {
-    public static defaultProps: Partial<IProps> = {
+export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSliderState> {
+    public static defaultProps: Partial<IStackSliderProps> = {
         zDistance: 50,
         yDistance: 30,
         transitionDuration: 0.4,
     };
     private refCurrentSlide: any;
 
-    constructor(props: IProps) {
+    constructor(props: IStackSliderProps) {
         super(props);
         this.state = {
             countSlides: 0,
@@ -64,7 +41,7 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
         const slides = [];
 
         for (let i = countSlides - 1; i >= 0; i--) {
-            const slideSetting: ISlide = {
+            const slideSetting: IStackSliderSlide = {
                 transition: "none",
                 translateX: 0,
                 translateY: currentYDistance,
@@ -99,7 +76,7 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
 
     public getEnhanceChildrens = () => {
         const { children } = this.props;
-        const { countSlides } = this.state;
+        const { countSlides, currentActiveSlide } = this.state;
         const childrenArray: any = [...React.Children.toArray(children)];
         const childrenWithProps: any = [];
 
@@ -113,6 +90,7 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
                 opacity,
                 rotateZ,
             } = this.state.slides[i];
+
             const slide = React.cloneElement(childrenArray[i], {
                 onMouseDown: this.setEventOnFirstSlide(i),
                 setRef: this.setCurrentSlideRef(i),
@@ -121,8 +99,10 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
                     zIndex,
                     transform: `translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateZ(${rotateZ}deg)`,
                     transition,
+                    cursor: i === currentActiveSlide ? "grab" : "default",
                 },
             });
+
             childrenWithProps[i] = slide;
         }
 
@@ -161,7 +141,7 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
         const newTransY = -Math.abs(newTransX / 15);
         const newRotZ = newTransX / 20;
 
-        const newSlides: ISlide[] = deepClone(slides);
+        const newSlides: IStackSliderSlide[] = deepClone(slides);
 
         newSlides[currentActiveSlide].translateX = newTransX;
         newSlides[currentActiveSlide].translateY = newTransY;
@@ -209,11 +189,9 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
     };
 
     public updateSlidesSettings = () => {
-        const { slides }: IState = this.state;
-
-        const newSlides: ISlide[] = deepClone(slides);
+        const { slides }: IStackSliderState = this.state;
+        const newSlides: IStackSliderSlide[] = deepClone(slides);
         shiftArray(newSlides, 1);
-
         const nextCurrentActiveSlide = this.getNextCurrentSlide();
 
         this.setState({
@@ -225,12 +203,13 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
     };
 
     public getNextCurrentSlide = () => {
-        const { countSlides, currentActiveSlide }: IState = this.state;
+        const { countSlides, currentActiveSlide }: IStackSliderState = this.state;
 
         let nextCurrentActiveSlide = currentActiveSlide - 1;
         if (nextCurrentActiveSlide < 0) {
             nextCurrentActiveSlide = countSlides - 1;
         }
+
         return nextCurrentActiveSlide;
     };
 
@@ -241,7 +220,7 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
         const newRotateZ = 0;
         const { currentActiveSlide, countSlides, slides } = this.state;
 
-        const newSlides: ISlide[] = [];
+        const newSlides: IStackSliderSlide[] = [];
         for (let i = 0; i < countSlides; i++) {
             const newObject = JSON.parse(JSON.stringify(slides[i]));
             newSlides.push(newObject);
@@ -282,6 +261,14 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
     };
 
     public render() {
-        return <StackWrapper>{this.getEnhanceChildrens()}</StackWrapper>;
+        const { countSlides, currentActiveSlide } = this.state;
+        return (
+            <StackWrapper>
+                {this.getEnhanceChildrens()}
+                {/* <StackLeftArrow />
+                <StackRightArrow /> */}
+                <StackPagination countSlides={countSlides} activeSlide={currentActiveSlide} />
+            </StackWrapper>
+        );
     }
 }

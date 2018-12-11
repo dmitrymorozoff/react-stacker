@@ -7,4 +7,5 @@ export const StackWrapper = styled.div`
     perspective: 1000px;
     transition: ease-in-out 0.2s;
     box-sizing: border-box;
+    position: relative;
 `;
