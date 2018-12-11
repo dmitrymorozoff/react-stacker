@@ -15,9 +15,8 @@ const StyledSlide: any = styled.div`
     width: 100%;
     background: #fcfcfc;
     transform-style: preserve-3d;
-    border: 1px solid #ccc;
     box-sizing: border-box;
-    border-radius: 2px;
+    border-radius: 5px;
     display: flex;
     justify-content: center;
     align-items: center;

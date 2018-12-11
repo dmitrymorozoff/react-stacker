@@ -1,4 +1,3 @@
-import filter from "lodash-es/filter";
 import * as React from "react";
 import { ISlideProps } from "./components/stack-slide/index";
 import { StackWrapper } from "./components/stack-wrapper";
@@ -8,14 +7,17 @@ import { shiftArray } from "./utils/shift-array";
 interface IProps {
     zDistance: number;
     yDistance: number;
+    transitionDuration: number;
 }
 
 interface ISlide {
     translateX: number;
     translateY: number;
     translateZ: number;
+    transition: string;
     rotateZ: number;
     zIndex: number;
+    opacity: number;
 }
 
 interface IState {
@@ -32,6 +34,7 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
     public static defaultProps: Partial<IProps> = {
         zDistance: 50,
         yDistance: 30,
+        transitionDuration: 0.4,
     };
     private refCurrentSlide: any;
 
@@ -51,36 +54,48 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
     }
 
     public componentWillMount() {
-        let countSlides = 0;
-        React.Children.forEach(this.props.children, (child: React.ReactElement<ISlideProps>) => {
-            if (child.props.isSlide) {
-                countSlides++;
-            }
-        });
-
+        const countSlides = this.getCountSlides();
         const { zDistance, yDistance } = this.props;
+
         let currentYDistance = 0;
         let currentZDistance = 0;
+        let opacity = 1;
+        const stepOpacity = 0.5 / (countSlides - 1);
         const slides = [];
+
         for (let i = countSlides - 1; i >= 0; i--) {
-            const slideSetting = {
+            const slideSetting: ISlide = {
+                transition: "none",
                 translateX: 0,
                 translateY: currentYDistance,
                 translateZ: currentZDistance,
                 rotateZ: 0,
                 zIndex: i,
+                opacity,
             };
 
             slides[i] = slideSetting;
             currentYDistance += yDistance;
             currentZDistance -= zDistance;
+            opacity -= stepOpacity;
         }
+
         this.setState({
             slides: [...slides],
             countSlides,
             currentActiveSlide: countSlides - 1,
         });
     }
+
+    public getCountSlides = (): number => {
+        let countSlides = 0;
+        React.Children.forEach(this.props.children, (child: React.ReactElement<ISlideProps>) => {
+            if (child.props.isSlide) {
+                countSlides++;
+            }
+        });
+        return countSlides;
+    };
 
     public getEnhanceChildrens = () => {
         const { children } = this.props;
@@ -89,13 +104,23 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
         const childrenWithProps: any = [];
 
         for (let i = 0; i < countSlides; i++) {
-            const { translateX, translateY, translateZ, zIndex } = this.state.slides[i];
+            const {
+                translateX,
+                translateY,
+                translateZ,
+                transition,
+                zIndex,
+                opacity,
+                rotateZ,
+            } = this.state.slides[i];
             const slide = React.cloneElement(childrenArray[i], {
                 onMouseDown: this.setEventOnFirstSlide(i),
                 setRef: this.setCurrentSlideRef(i),
                 style: {
+                    opacity,
                     zIndex,
-                    transform: `translateX(${translateX}px) translateY(${translateY}px)  translateZ(${translateZ}px)`,
+                    transform: `translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateZ(${rotateZ}deg)`,
+                    transition,
                 },
             });
             childrenWithProps[i] = slide;
@@ -141,6 +166,7 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
         newSlides[currentActiveSlide].translateX = newTransX;
         newSlides[currentActiveSlide].translateY = newTransY;
         newSlides[currentActiveSlide].rotateZ = newRotZ;
+        newSlides[currentActiveSlide].transition = "none";
 
         const { yDistance, zDistance } = this.props;
         let count = 1;
@@ -155,6 +181,7 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
             newSlides[indexElement].translateX = newTransX / (2 * count);
             newSlides[indexElement].translateY = yDistance * count;
             newSlides[indexElement].translateZ = -zDistance * count;
+            newSlides[indexElement].transition = "none";
             newSlides[indexElement].rotateZ = newRotZ / (2 * count);
             count++;
         }
@@ -169,25 +196,42 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
         event.preventDefault();
 
         if (Math.abs(newTransX) >= this.refCurrentSlide.offsetWidth - 30) {
+            this.refCurrentSlide.style.transition = "ease 0.2s";
+            this.refCurrentSlide.style.opacity = 0;
             this.handleMouseUp(event);
-            this.refCurrentSlide = null;
-            this.updateSlidesSettings();
+            setTimeout(() => {
+                this.refCurrentSlide.style.transition = "none";
+                this.refCurrentSlide.style.opacity = "1";
+                this.updateSlidesSettings();
+            }, 200);
             return;
         }
     };
 
     public updateSlidesSettings = () => {
-        const { slides }: any = this.state;
+        const { slides }: IState = this.state;
 
         const newSlides: ISlide[] = deepClone(slides);
         shiftArray(newSlides, 1);
 
+        const nextCurrentActiveSlide = this.getNextCurrentSlide();
+
         this.setState({
             slides: [...newSlides],
-            currentActiveSlide: this.state.currentActiveSlide - 1,
+            currentActiveSlide: nextCurrentActiveSlide,
         });
 
         document.removeEventListener("mouseup", this.handleMouseUp, false);
+    };
+
+    public getNextCurrentSlide = () => {
+        const { countSlides, currentActiveSlide }: IState = this.state;
+
+        let nextCurrentActiveSlide = currentActiveSlide - 1;
+        if (nextCurrentActiveSlide < 0) {
+            nextCurrentActiveSlide = countSlides - 1;
+        }
+        return nextCurrentActiveSlide;
     };
 
     public handleMouseUp = (event: MouseEvent) => {
@@ -203,13 +247,15 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
             newSlides.push(newObject);
         }
 
+        const { yDistance, zDistance, transitionDuration } = this.props;
+        const timing = "0.075, 0.82, 0.165, 1";
+
         newSlides[currentActiveSlide].translateX = newTranslateX;
         newSlides[currentActiveSlide].translateY = newTranslateY;
+        newSlides[currentActiveSlide].transition = `cubic-bezier(${timing}) ${transitionDuration}s`;
         newSlides[currentActiveSlide].rotateZ = newRotateZ;
 
-        const { yDistance, zDistance } = this.props;
         let count = 1;
-
         for (let j = countSlides - 2; j >= 0; j--) {
             let indexElement = j - (countSlides - 1 - currentActiveSlide);
 
@@ -219,6 +265,8 @@ export class StackSlider extends React.PureComponent<IProps, IState> {
             newSlides[indexElement].translateX = newTranslateX;
             newSlides[indexElement].translateY = yDistance * count;
             newSlides[indexElement].translateZ = -zDistance * count;
+            newSlides[indexElement].transition = `cubic-bezier(${timing}) ${transitionDuration /
+                (count + 0.9)}s`;
             newSlides[indexElement].rotateZ = newRotateZ;
             count++;
         }

@@ -8,10 +8,10 @@ export class App extends React.Component<{}, {}> {
             <div className="outer">
                 <div className="wrapper">
                     <StackSlider>
-                        <StackSlide>1</StackSlide>
-                        <StackSlide>2</StackSlide>
-                        <StackSlide>3</StackSlide>
-                        <StackSlide>4</StackSlide>
+                        <StackSlide>Slide 1</StackSlide>
+                        <StackSlide>Slide 2</StackSlide>
+                        <StackSlide>Slide 3</StackSlide>
+                        <StackSlide>Slide 4</StackSlide>
                     </StackSlider>
                 </div>
             </div>
