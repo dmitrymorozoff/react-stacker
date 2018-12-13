@@ -192,14 +192,19 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
 
             let count = 1;
             for (let j = countSlides - 1; j >= 0; j--) {
-                if (newSlides[j].id === 0) {
+                let indexElement = j - (countSlides - 1 - currentActiveSlide);
+
+                if (indexElement < 0) {
+                    indexElement = countSlides - Math.abs(indexElement);
+                }
+                if (newSlides[indexElement].id === 0) {
                     continue;
                 }
-                if (j < 0) {
-                    j = countSlides - Math.abs(j);
+                if (indexElement < 0) {
+                    indexElement = countSlides - Math.abs(indexElement);
                 }
-                newSlides[j].translateY = yDistance * count;
-                newSlides[j].translateZ = -zDistance * count;
+                newSlides[indexElement].translateY = yDistance * count;
+                newSlides[indexElement].translateZ = -zDistance * count;
                 count++;
             }
         }
