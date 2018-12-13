@@ -2,6 +2,7 @@ export interface IStackSliderProps {
     zDistance: number;
     yDistance: number;
     transitionDuration: number;
+    loop: boolean;
 }
 
 export interface IStackSliderSlide {
@@ -12,6 +13,7 @@ export interface IStackSliderSlide {
     rotateZ: number;
     zIndex: number;
     opacity: number;
+    id: number;
 }
 
 export interface IStackSliderState {
