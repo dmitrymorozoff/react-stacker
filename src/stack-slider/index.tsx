@@ -26,6 +26,8 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
             transX: 0,
             transY: 0,
             rotZ: 0,
+            startMovingPosition: 0,
+            direction: 0,
         };
 
         this.refCurrentSlide = React.createRef();
@@ -130,6 +132,7 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
 
         this.setState({
             initX: event.pageX,
+            startMovingPosition: event.pageX,
         });
 
         document.addEventListener("mousemove", this.handleMouseMove, false);
@@ -137,14 +140,32 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
     };
 
     public handleMouseMove = (event: MouseEvent) => {
-        const { currentActiveSlide, countSlides, slides } = this.state;
+        const {
+            currentActiveSlide,
+            countSlides,
+            slides,
+            direction,
+            startMovingPosition,
+        } = this.state;
         const mouseX = event.pageX;
         const newTransX = this.state.transX + (mouseX - this.state.initX);
-        let direction = 0;
-        if (newTransX < 0) {
-            direction = -1;
-        } else {
-            direction = 1;
+
+        let movingDelta = 0;
+        if (startMovingPosition) {
+            movingDelta = Math.abs(startMovingPosition - mouseX);
+        }
+        if (movingDelta < 10) {
+            return;
+        }
+
+        if (newTransX < 0 && direction === 0) {
+            this.setState({
+                direction: -1,
+            });
+        } else if (direction === 0) {
+            this.setState({
+                direction: 1,
+            });
         }
 
         const newTransY = -Math.abs(newTransX / 15);
@@ -175,7 +196,7 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
                 newSlides[indexElement].rotateZ = newRotZ / (2 * count);
                 count++;
             }
-        } else {
+        } else if (direction > 0) {
             const firstSlide = newSlides.findIndex((slide: IStackSliderSlide) => {
                 return slide.id === 0;
             });
@@ -190,7 +211,10 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
             newSlides[firstSlide].opacity = 1;
             newSlides[firstSlide].zIndex = countSlides + 1;
 
+            const stepOpacity = 0.5 / (countSlides - 1);
+            let opacity = 1 - stepOpacity;
             let count = 1;
+
             for (let j = countSlides - 1; j >= 0; j--) {
                 let indexElement = j - (countSlides - 1 - currentActiveSlide);
 
@@ -205,6 +229,8 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
                 }
                 newSlides[indexElement].translateY = yDistance * count;
                 newSlides[indexElement].translateZ = -zDistance * count;
+                newSlides[indexElement].opacity = opacity;
+                opacity -= stepOpacity;
                 count++;
             }
         }
@@ -219,11 +245,6 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
         event.preventDefault();
 
         if (Math.abs(newTransX) >= this.refCurrentSlide.offsetWidth - 30) {
-            // let isLiftMove = false;
-            // if (newTransX < 0) {
-            // isLiftMove = true;
-            // }
-            // console.log("isLeft", isLiftMove);
             this.refCurrentSlide.style.transition = "ease 0.2s";
             this.refCurrentSlide.style.opacity = 0;
             this.handleMouseUp(event);
@@ -292,6 +313,7 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
         newSlides[currentActiveSlide].transition = `cubic-bezier(${timing}) ${transitionDuration}s`;
         newSlides[currentActiveSlide].rotateZ = newRotateZ;
         newSlides[currentActiveSlide].zIndex = newSlides[currentActiveSlide].id;
+        newSlides[currentActiveSlide].opacity = 1;
 
         const stepOpacity = 0.5 / (countSlides - 1);
         let opacity = 1 - stepOpacity;
@@ -320,6 +342,8 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
             transY: newTranslateY,
             rotZ: newRotateZ,
             slides: [...newSlides],
+            startMovingPosition: 0,
+            direction: 0,
         });
 
         document.removeEventListener("mousemove", this.handleMouseMove, false);

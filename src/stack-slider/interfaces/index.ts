@@ -23,5 +23,7 @@ export interface IStackSliderState {
     rotZ: number;
     countSlides: number;
     currentActiveSlide: number;
+    startMovingPosition: number;
+    direction: 0 | 1 | -1;
     slides: IStackSliderSlide[];
 }
