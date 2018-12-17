@@ -202,7 +202,8 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
             });
 
             const prevNewTransX =
-                this.state.transX - (mouseX - (newTransX + this.refCurrentSlide.offsetWidth - 30));
+                this.state.transX +
+                (mouseX - this.state.initX - this.refCurrentSlide.offsetWidth - 30);
             const prewNewRotZ = prevNewTransX / 20;
             newSlides[firstSlide].translateX = newTransX - this.refCurrentSlide.offsetWidth + 30;
             newSlides[firstSlide].translateY = newTransY;
@@ -248,11 +249,16 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
             this.refCurrentSlide.style.transition = "ease 0.2s";
             this.refCurrentSlide.style.opacity = 0;
             this.handleMouseUp(event);
-            setTimeout(() => {
-                this.refCurrentSlide.style.transition = "none";
-                this.refCurrentSlide.style.opacity = "1";
+            if (direction > 0) {
                 this.updateSlidesSettings(direction);
-            }, 200);
+            } else {
+                setTimeout(() => {
+                    this.refCurrentSlide.style.transition = "none";
+                    this.refCurrentSlide.style.opacity = "1";
+                    this.updateSlidesSettings(direction);
+                }, 200);
+            }
+
             return;
         }
     };

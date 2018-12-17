@@ -13,7 +13,8 @@ const StyledSlide: any = styled.div`
     top: 0;
     height: 100%;
     width: 100%;
-    background: #fcfcfc;
+    background: #ddd;
+    border: 1px solid #aaa;
     transform-style: preserve-3d;
     box-sizing: border-box;
     border-radius: 5px;
