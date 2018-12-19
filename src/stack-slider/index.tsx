@@ -1,5 +1,4 @@
 import * as React from "react";
-// import { StackLeftArrow, StackRightArrow } from "./components/stack-arrows/index";
 import { StackPagination } from "./components/stack-pagination/index";
 import { ISlideProps } from "./components/stack-slide/index";
 import { StackWrapper } from "./components/stack-wrapper";
@@ -11,10 +10,14 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
     public static defaultProps: Partial<IStackSliderProps> = {
         zDistance: 50,
         yDistance: 30,
-        transitionDuration: 0.4,
-        loop: true,
+        slideWidth: "500px",
+        slideHeight: "300px",
+        transitionDuration: 0.8,
+        infiniteLoop: true,
+        dots: false,
     };
     private refCurrentSlide: any;
+    private timeout: NodeJS.Timer | null | undefined;
 
     constructor(props: IStackSliderProps) {
         super(props);
@@ -56,8 +59,8 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
             };
 
             slides[i] = slideSetting;
-            currentYDistance += yDistance;
-            currentZDistance -= zDistance;
+            currentYDistance += yDistance || 0;
+            currentZDistance -= zDistance || 0;
             opacity -= stepOpacity;
         }
 
@@ -66,6 +69,13 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
             countSlides,
             currentActiveSlide: countSlides - 1,
         });
+    }
+
+    public componentWillUnmount() {
+        if (this.timeout) {
+            clearTimeout(this.timeout);
+            this.timeout = null;
+        }
     }
 
     public getCountSlides = (): number => {
@@ -140,7 +150,7 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
     };
 
     public handleMouseMove = (event: MouseEvent) => {
-        const { slides, direction, startMovingPosition } = this.state;
+        const { slides, direction, startMovingPosition, countSlides } = this.state;
         const mouseX = event.pageX;
         const newTransX = this.state.transX + (mouseX - this.state.initX);
 
@@ -150,8 +160,19 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
         this.checkDirection(newTransX, direction);
 
         const newTransY = -Math.abs(newTransX / 15);
-        const newRotZ = newTransX / 20;
+        const newRotZ = this.getRotateZCard(newTransX);
         const newSlides: IStackSliderSlide[] = deepClone(slides);
+
+        const nextCurrentActiveSlide = this.getNextCurrentSlide(direction);
+        const { infiniteLoop: loop } = this.props;
+
+        if (!loop && direction < 0 && nextCurrentActiveSlide === countSlides - 1) {
+            return;
+        }
+
+        if (!loop && direction > 0 && nextCurrentActiveSlide === 0) {
+            return;
+        }
 
         if (direction < 0) {
             this.moveToLeftHandler(newSlides, newTransX, newTransY, newRotZ);
@@ -168,20 +189,38 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
         });
         event.preventDefault();
 
-        if (Math.abs(newTransX) >= this.refCurrentSlide.offsetWidth - 30) {
-            this.refCurrentSlide.style.transition = "ease 0.2s";
+        if (Math.abs(newTransX) >= this.refCurrentSlide.offsetWidth) {
+            this.refCurrentSlide.style.transition = "ease .2s";
             this.refCurrentSlide.style.opacity = 0;
             this.handleMouseUp(event);
             if (direction > 0) {
                 this.updateSlidesPosition(direction);
             } else {
-                setTimeout(() => {
+                this.timeout = setTimeout(() => {
                     this.refCurrentSlide.style.transition = "none";
                     this.refCurrentSlide.style.opacity = "1";
                     this.updateSlidesPosition(direction);
                 }, 200);
             }
+            this.onChangeHandler(direction);
             return;
+        }
+    };
+
+    public onChangeHandler = (direction: number) => {
+        const { onChange, onNextChange, onPrevChange } = this.props;
+        if (onChange) {
+            onChange();
+        }
+        if (onNextChange) {
+            if (direction < 0) {
+                onNextChange();
+            }
+        }
+        if (onPrevChange) {
+            if (direction > 0) {
+                onPrevChange();
+            }
         }
     };
 
@@ -207,8 +246,8 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
 
             Object.assign(newSlides[indexElement], {
                 translateX: newTransX / (2 * count),
-                translateY: yDistance * count,
-                translateZ: -zDistance * count,
+                translateY: (yDistance || 0) * count,
+                translateZ: -(zDistance || 0) * count,
                 rotateZ: newRotZ / (2 * count),
                 transition: "none",
             });
@@ -228,11 +267,11 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
             return slide.id === 0;
         });
         const prevSlideTransX =
-            this.state.transX + (mouseX - this.state.initX - this.refCurrentSlide.offsetWidth - 30);
-        const prewSlideRotZ = prevSlideTransX / 20;
+            this.state.transX + (mouseX - this.state.initX - this.refCurrentSlide.offsetWidth);
+        const prewSlideRotZ = this.getRotateZCard(prevSlideTransX);
 
         Object.assign(newSlides[firstSlide], {
-            translateX: newTransX - this.refCurrentSlide.offsetWidth + 30,
+            translateX: newTransX - this.refCurrentSlide.offsetWidth,
             translateY: newTransY,
             translateZ: 0,
             rotateZ: prewSlideRotZ,
@@ -251,8 +290,8 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
             }
 
             Object.assign(newSlides[indexElement], {
-                translateY: yDistance * count,
-                translateZ: -zDistance * count,
+                translateY: (yDistance || 0) * count,
+                translateZ: -(zDistance || 0) * count,
                 opacity,
             });
 
@@ -285,10 +324,10 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
     };
 
     public updateSlidesPosition = (direction: number) => {
+        const nextCurrentActiveSlide = this.getNextCurrentSlide(direction);
         const { slides }: IStackSliderState = this.state;
         const newSlides: IStackSliderSlide[] = deepClone(slides);
         shiftArray(newSlides, 1, direction);
-        const nextCurrentActiveSlide = this.getNextCurrentSlide(direction);
 
         this.setState({
             slides: [...newSlides],
@@ -299,18 +338,17 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
     };
 
     public getNextCurrentSlide = (direction: number) => {
-        const { loop } = this.props;
         const { countSlides, currentActiveSlide }: IStackSliderState = this.state;
 
         let nextCurrentActiveSlide = null;
         if (direction < 0) {
             nextCurrentActiveSlide = currentActiveSlide - 1;
-            if (loop && nextCurrentActiveSlide < 0) {
+            if (nextCurrentActiveSlide < 0) {
                 nextCurrentActiveSlide = countSlides - 1;
             }
         } else {
             nextCurrentActiveSlide = currentActiveSlide + 1;
-            if (loop && nextCurrentActiveSlide > countSlides - 1) {
+            if (nextCurrentActiveSlide > countSlides - 1) {
                 nextCurrentActiveSlide = 0;
             }
         }
@@ -332,7 +370,7 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
         }
 
         const { yDistance, zDistance, transitionDuration } = this.props;
-        const timing = "0.075, 0.82, 0.165, 1";
+        const timing = "0, 1.95, .49, .73";
 
         Object.assign(newSlides[currentActiveSlide], {
             translateX: newTranslateX,
@@ -353,9 +391,9 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
 
             Object.assign(newSlides[indexElement], {
                 translateX: newTranslateX,
-                translateY: yDistance * count,
-                translateZ: -zDistance * count,
-                transition: `cubic-bezier(${timing}) ${transitionDuration / (count + 0.9)}s`,
+                translateY: (yDistance || 0) * count,
+                translateZ: -(zDistance || 0) * count,
+                transition: `cubic-bezier(${timing}) 0.4s`,
                 rotateZ: newRotateZ,
                 zIndex: newSlides[indexElement].id,
                 opacity,
@@ -388,12 +426,24 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
         return indexElement;
     };
 
+    public getRotateZCard = (translateX: number) => {
+        return translateX / Math.sqrt(this.refCurrentSlide.offsetWidth);
+    };
+
     public render() {
         const { countSlides, currentActiveSlide } = this.state;
+        const { dots, className, slideWidth, slideHeight, yDistance } = this.props;
         return (
-            <StackWrapper>
+            <StackWrapper
+                className={className}
+                slideWidth={slideWidth}
+                slideHeight={slideHeight}
+                style={{ marginBottom: `${(countSlides * yDistance!) / 2}px` }}
+            >
                 {this.getEnhanceChildrens()}
-                <StackPagination countSlides={countSlides} activeSlide={currentActiveSlide} />
+                {dots && (
+                    <StackPagination countSlides={countSlides} activeSlide={currentActiveSlide} />
+                )}
             </StackWrapper>
         );
     }

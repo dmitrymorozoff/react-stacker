@@ -4,6 +4,7 @@ import styled from "styled-components";
 interface IStackPaginationProps {
     activeSlide: number;
     countSlides: number;
+    className?: string;
 }
 
 interface IStackBulletProps {
@@ -14,8 +15,9 @@ const StackBullet = styled.div`
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: ${(props: IStackBulletProps) => (props.isActive ? "#2175fa" : "#ccc")};
-    margin: 0 4px;
+    background-color: ${(props: IStackBulletProps) => (props.isActive ? "#5c5c5c" : "#ccc")};
+    margin: 0 6px;
+    transition: 0.4s;
 `;
 
 const StackPaginationWrapper = styled.div`
@@ -42,6 +44,6 @@ export class StackPagination extends React.Component<IStackPaginationProps, {}> 
     };
 
     public render() {
-        return <StackPaginationWrapper>{this.getBullets()}</StackPaginationWrapper>;
+        return <StackPaginationWrapper {...this.props}>{this.getBullets()}</StackPaginationWrapper>;
     }
 }

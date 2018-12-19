@@ -1,8 +1,15 @@
 export interface IStackSliderProps {
-    zDistance: number;
-    yDistance: number;
-    transitionDuration: number;
-    loop: boolean;
+    className?: string;
+    zDistance?: number;
+    yDistance?: number;
+    transitionDuration?: number;
+    infiniteLoop?: boolean;
+    dots?: boolean;
+    slideWidth?: string;
+    slideHeight?: string;
+    onChange?: () => void;
+    onPrevChange?: () => void;
+    onNextChange?: () => void;
 }
 
 export interface IStackSliderSlide {
