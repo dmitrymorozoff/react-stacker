@@ -9,7 +9,7 @@
     },
     "scripts": {
         "dev": "parcel --no-cache example/index.html",
-        "build": "npm run test && npm run lint && npm run clean && webpack --mode production && parcel build --no-cache --public-url ./ example/index.html",
+        "build": "npm run lint && npm run clean && webpack --mode production && parcel build --no-cache --public-url ./ example/index.html",
         "prettier": "prettier --config .prettierrc.json --write src/**/*.ts",
         "lint": "tslint -c tslint.json 'src/**/*.ts' 'tests/**/*.spec.ts'",
         "test:watch": "jest --watch",

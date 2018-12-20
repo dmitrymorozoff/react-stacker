@@ -18,6 +18,7 @@ const StyledSlide: any = styled.div`
     transform-style: preserve-3d;
     box-sizing: border-box;
     border-radius: 5px;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -26,7 +27,7 @@ const StyledSlide: any = styled.div`
 
 StyledSlide.overwriteStyles = true;
 
-export class StackSlide extends React.Component<ISlideProps, {}> {
+export class StackerSlide extends React.Component<ISlideProps, {}> {
     public static defaultProps: Partial<ISlideProps> = {
         isSlide: true,
     };

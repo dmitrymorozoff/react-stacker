@@ -1,34 +1,36 @@
 import * as React from "react";
-import { StackPagination } from "./components/stack-pagination/index";
-import { ISlideProps } from "./components/stack-slide/index";
-import { StackWrapper } from "./components/stack-wrapper";
-import { IStackSliderProps, IStackSliderSlide, IStackSliderState } from "./interfaces";
+import { StackerPagination } from "./components/stacker-pagination/index";
+import { ISlideProps } from "./components/stacker-slide/index";
+import { StackerWrapper } from "./components/stacker-wrapper";
+import { IStackerSliderProps, IStackerSliderSlide, IStackerSliderState } from "./interfaces";
 import { deepClone } from "./utils/deep-clone";
 import { shiftArray } from "./utils/shift-array";
 
-export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSliderState> {
-    public static defaultProps: Partial<IStackSliderProps> = {
+export class StackerSlider extends React.PureComponent<IStackerSliderProps, IStackerSliderState> {
+    public static defaultProps: Partial<IStackerSliderProps> = {
         zDistance: 50,
         yDistance: 30,
-        slideWidth: "500px",
-        slideHeight: "300px",
+        slideWidth: "350px",
+        slideHeight: "350px",
         transitionDuration: 0.8,
         infiniteLoop: true,
         dots: false,
+        dotsColor: "#fff",
+        dotsActiveColor: "#ff0000",
     };
     private refCurrentSlide: any;
     private timeout: NodeJS.Timer | null | undefined;
 
-    constructor(props: IStackSliderProps) {
+    constructor(props: IStackerSliderProps) {
         super(props);
         this.state = {
             countSlides: 0,
             currentActiveSlide: 0,
             slides: [],
             initX: 0,
-            transX: 0,
-            transY: 0,
-            rotZ: 0,
+            currentTranslateX: 0,
+            currentTranslateY: 0,
+            currentRotateZ: 0,
             startMovingPosition: 0,
             direction: 0,
         };
@@ -47,7 +49,7 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
         const slides = [];
 
         for (let i = countSlides - 1; i >= 0; i--) {
-            const slideSetting: IStackSliderSlide = {
+            const slideSetting: IStackerSliderSlide = {
                 transition: "none",
                 translateX: 0,
                 translateY: currentYDistance,
@@ -152,7 +154,7 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
     public handleMouseMove = (event: MouseEvent) => {
         const { slides, direction, startMovingPosition, countSlides } = this.state;
         const mouseX = event.pageX;
-        const newTransX = this.state.transX + (mouseX - this.state.initX);
+        const newTransX = this.state.currentTranslateX + (mouseX - this.state.initX);
 
         if (!this.isCorrectMovingDelta(startMovingPosition, mouseX)) {
             return;
@@ -161,7 +163,7 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
 
         const newTransY = -Math.abs(newTransX / 15);
         const newRotZ = this.getRotateZCard(newTransX);
-        const newSlides: IStackSliderSlide[] = deepClone(slides);
+        const newSlides: IStackerSliderSlide[] = deepClone(slides);
 
         const nextCurrentActiveSlide = this.getNextCurrentSlide(direction);
         const { infiniteLoop: loop } = this.props;
@@ -182,9 +184,9 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
 
         this.setState({
             slides: [...newSlides],
-            transX: newTransX,
-            transY: newTransY,
-            rotZ: newRotZ,
+            currentTranslateX: newTransX,
+            currentTranslateY: newTransY,
+            currentRotateZ: newRotZ,
             initX: mouseX,
         });
         event.preventDefault();
@@ -225,7 +227,7 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
     };
 
     public moveToLeftHandler = (
-        newSlides: IStackSliderSlide[],
+        newSlides: IStackerSliderSlide[],
         newTransX: number,
         newTransY: number,
         newRotZ: number,
@@ -256,18 +258,19 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
     };
 
     public moveToRightHandler = (
-        newSlides: IStackSliderSlide[],
+        newSlides: IStackerSliderSlide[],
         newTransX: number,
         newTransY: number,
         mouseX: number,
     ) => {
         const { currentActiveSlide, countSlides } = this.state;
         const { yDistance, zDistance } = this.props;
-        const firstSlide = newSlides.findIndex((slide: IStackSliderSlide) => {
+        const firstSlide = newSlides.findIndex((slide: IStackerSliderSlide) => {
             return slide.id === 0;
         });
         const prevSlideTransX =
-            this.state.transX + (mouseX - this.state.initX - this.refCurrentSlide.offsetWidth);
+            this.state.currentTranslateX +
+            (mouseX - this.state.initX - this.refCurrentSlide.offsetWidth);
         const prewSlideRotZ = this.getRotateZCard(prevSlideTransX);
 
         Object.assign(newSlides[firstSlide], {
@@ -325,8 +328,8 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
 
     public updateSlidesPosition = (direction: number) => {
         const nextCurrentActiveSlide = this.getNextCurrentSlide(direction);
-        const { slides }: IStackSliderState = this.state;
-        const newSlides: IStackSliderSlide[] = deepClone(slides);
+        const { slides }: IStackerSliderState = this.state;
+        const newSlides: IStackerSliderSlide[] = deepClone(slides);
         shiftArray(newSlides, 1, direction);
 
         this.setState({
@@ -338,7 +341,7 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
     };
 
     public getNextCurrentSlide = (direction: number) => {
-        const { countSlides, currentActiveSlide }: IStackSliderState = this.state;
+        const { countSlides, currentActiveSlide }: IStackerSliderState = this.state;
 
         let nextCurrentActiveSlide = null;
         if (direction < 0) {
@@ -363,7 +366,7 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
         const newRotateZ = 0;
         const { currentActiveSlide, countSlides, slides } = this.state;
 
-        const newSlides: IStackSliderSlide[] = [];
+        const newSlides: IStackerSliderSlide[] = [];
         for (let i = 0; i < countSlides; i++) {
             const newObject = JSON.parse(JSON.stringify(slides[i]));
             newSlides.push(newObject);
@@ -403,9 +406,9 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
         }
 
         this.setState({
-            transX: newTranslateX,
-            transY: newTranslateY,
-            rotZ: newRotateZ,
+            currentTranslateX: newTranslateX,
+            currentTranslateY: newTranslateY,
+            currentRotateZ: newRotateZ,
             slides: [...newSlides],
             startMovingPosition: 0,
             direction: 0,
@@ -432,19 +435,19 @@ export class StackSlider extends React.PureComponent<IStackSliderProps, IStackSl
 
     public render() {
         const { countSlides, currentActiveSlide } = this.state;
-        const { dots, className, slideWidth, slideHeight, yDistance } = this.props;
+        const { dots, className, slideWidth, slideHeight, dotsColor, dotsActiveColor } = this.props;
         return (
-            <StackWrapper
-                className={className}
-                slideWidth={slideWidth}
-                slideHeight={slideHeight}
-                style={{ marginBottom: `${(countSlides * yDistance!) / 2}px` }}
-            >
+            <StackerWrapper className={className} slideWidth={slideWidth} slideHeight={slideHeight}>
                 {this.getEnhanceChildrens()}
                 {dots && (
-                    <StackPagination countSlides={countSlides} activeSlide={currentActiveSlide} />
+                    <StackerPagination
+                        countSlides={countSlides}
+                        activeSlide={currentActiveSlide}
+                        dotsColor={dotsColor}
+                        dotsActiveColor={dotsActiveColor}
+                    />
                 )}
-            </StackWrapper>
+            </StackerWrapper>
         );
     }
 }

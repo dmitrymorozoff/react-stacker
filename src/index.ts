@@ -1,4 +1,4 @@
-import { StackSlider } from "./stack-slider";
-import { StackSlide } from "./stack-slider/components/stack-slide";
+import { StackerSlider } from "./stacker-slider";
+import { StackerSlide } from "./stacker-slider/components/stacker-slide";
 
-export { StackSlider, StackSlide };
+export { StackerSlider, StackerSlide };

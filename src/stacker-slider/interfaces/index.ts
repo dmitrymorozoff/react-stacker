@@ -1,4 +1,4 @@
-export interface IStackSliderProps {
+export interface IStackerSliderProps {
     className?: string;
     zDistance?: number;
     yDistance?: number;
@@ -7,12 +7,14 @@ export interface IStackSliderProps {
     dots?: boolean;
     slideWidth?: string;
     slideHeight?: string;
+    dotsColor?: string;
+    dotsActiveColor?: string;
     onChange?: () => void;
     onPrevChange?: () => void;
     onNextChange?: () => void;
 }
 
-export interface IStackSliderSlide {
+export interface IStackerSliderSlide {
     translateX: number;
     translateY: number;
     translateZ: number;
@@ -23,14 +25,14 @@ export interface IStackSliderSlide {
     id: number;
 }
 
-export interface IStackSliderState {
+export interface IStackerSliderState {
     initX: number;
-    transX: number;
-    transY: number;
-    rotZ: number;
+    currentTranslateX: number;
+    currentTranslateY: number;
+    currentRotateZ: number;
     countSlides: number;
     currentActiveSlide: number;
     startMovingPosition: number;
     direction: 0 | 1 | -1;
-    slides: IStackSliderSlide[];
+    slides: IStackerSliderSlide[];
 }
