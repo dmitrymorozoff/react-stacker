@@ -1,11 +1,11 @@
 {
-    "name": "react-stack-slider",
+    "name": "react-stacker",
     "version": "1.0.0",
-    "description": "3D stacked content swiper/carousel component for React.js",
+    "description": "3d stacked content swiper/carousel component for React.js",
     "main": "./lib/index.js",
     "repository": {
         "type": "git",
-        "url": "https://github.com/dmitrymorozoff/react-stack-slider"
+        "url": "https://github.com/dmitrymorozoff/react-stacker"
     },
     "scripts": {
         "dev": "parcel --no-cache example/index.html",

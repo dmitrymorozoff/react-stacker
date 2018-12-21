@@ -15,7 +15,7 @@ export class StackerSlider extends React.PureComponent<IStackerSliderProps, ISta
         transitionDuration: 0.8,
         infiniteLoop: true,
         dots: false,
-        dotsColor: "#fff",
+        dotsColor: "#0000007d",
         dotsActiveColor: "#ff0000",
         dotsSize: "8px",
         dotsPadding: "6px",
@@ -92,21 +92,23 @@ export class StackerSlider extends React.PureComponent<IStackerSliderProps, ISta
         return countSlides;
     };
 
-    public handleMouseDown = (event: MouseEvent) => {
-        event.preventDefault();
-
+    public handleMouseDown = (event: MouseEvent & React.TouchEvent) => {
         this.setState({
-            initX: event.pageX,
-            startMovingPosition: event.pageX,
+            initX: event.pageX || event.targetTouches[0].pageX,
+            startMovingPosition: event.pageX || event.targetTouches[0].pageX,
         });
 
         document.addEventListener("mousemove", this.handleMouseMove, false);
         document.addEventListener("mouseup", this.handleMouseUp, false);
+
+        document.addEventListener("touchmove", this.handleMouseMove, false);
+        document.addEventListener("touchend", this.handleMouseUp, false);
     };
 
-    public handleMouseMove = (event: MouseEvent) => {
+    public handleMouseMove = (event: MouseEvent & React.TouchEvent) => {
         const { slides, direction, startMovingPosition, countSlides } = this.state;
-        const mouseX = event.pageX;
+        const mouseX = event.pageX || event.targetTouches[0].pageX;
+
         const newTransX = this.state.currentTranslateX + (mouseX - this.state.initX);
 
         if (!this.isCorrectMovingDelta(startMovingPosition, mouseX)) {
@@ -142,12 +144,11 @@ export class StackerSlider extends React.PureComponent<IStackerSliderProps, ISta
             currentRotateZ: newRotZ,
             initX: mouseX,
         });
-        event.preventDefault();
 
         if (Math.abs(newTransX) >= this.refCurrentSlide.offsetWidth) {
             this.refCurrentSlide.style.transition = "ease .2s";
             this.refCurrentSlide.style.opacity = 0;
-            this.handleMouseUp(event);
+            this.handleMouseUp();
             if (direction > 0) {
                 this.updateSlidesPosition(direction);
             } else {
@@ -312,8 +313,7 @@ export class StackerSlider extends React.PureComponent<IStackerSliderProps, ISta
         return nextCurrentActiveSlide;
     };
 
-    public handleMouseUp = (event: MouseEvent) => {
-        event.preventDefault();
+    public handleMouseUp = () => {
         const newTranslateX = 0;
         const newTranslateY = 0;
         const newRotateZ = 0;
@@ -368,6 +368,7 @@ export class StackerSlider extends React.PureComponent<IStackerSliderProps, ISta
         });
 
         document.removeEventListener("mousemove", this.handleMouseMove, false);
+        document.removeEventListener("touchmove", this.handleMouseMove, false);
     };
 
     public getPrevIndexElement = (
@@ -419,6 +420,7 @@ export class StackerSlider extends React.PureComponent<IStackerSliderProps, ISta
 
             const slide = React.cloneElement(childrenArray[i], {
                 onMouseDown: this.setEventOnFirstSlide(i),
+                onTouchStart: this.setEventOnFirstSlide(i),
                 setRef: this.setCurrentSlideRef(i),
                 style: {
                     opacity,

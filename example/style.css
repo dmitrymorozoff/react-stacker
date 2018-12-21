@@ -108,6 +108,7 @@ a.button {
     justify-content: center;
     align-items: center;
     text-decoration: none;
+    text-transform: uppercase;
     background-image: linear-gradient(to left, #ec134b 0, #e47d13bd);
     background-size: cover;
     background-repeat: no-repeat;

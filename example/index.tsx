@@ -34,7 +34,7 @@ export class App extends React.Component<{}, {}> {
                     className="button"
                     target="_blank"
                 >
-                    GITHUB
+                    github
                 </a>
                 <div className="wrapper">
                     <StackerSlider
@@ -65,7 +65,6 @@ export class App extends React.Component<{}, {}> {
                                 Slide 3/6
                             </SlideEntry>
                         </StackerSlide>
-
                         <StackerSlide>
                             <SlideEntry src="https://images.unsplash.com/photo-1532462485347-6cb892522cad?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1400&q=80">
                                 Slide 2/6
