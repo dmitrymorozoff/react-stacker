@@ -16,7 +16,16 @@
         "test": "jest",
         "clean": "rimraf lib && rimraf dist"
     },
-    "keywords": [],
+    "keywords": [
+        "react",
+        "carousel",
+        "gallery",
+        "slider",
+        "swipe",
+        "mobile-friendly",
+        "react-component",
+        "image-gallery"
+    ],
     "author": "Morozov Dmitry <dimemorozovy@yandex.ru>",
     "license": "MIT",
     "devDependencies": {
