@@ -6,6 +6,7 @@
 /styleguide/
 /dist/
 /build/
+lib
 .cache
 
 # Development stuff
