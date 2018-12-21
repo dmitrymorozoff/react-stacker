@@ -12,7 +12,6 @@ module.exports = {
         library: "",
         libraryTarget: "commonjs",
     },
-    devtool: "source-map",
     resolve: {
         extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
     },
@@ -33,7 +32,7 @@ module.exports = {
                 uglifyOptions: {
                     mangle: true,
                 },
-                sourceMap: true,
+                sourceMap: false,
             }),
         ],
     },
