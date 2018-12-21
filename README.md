@@ -76,20 +76,20 @@ ReactDOM.render(<App />, document.getElementById("root"));
 
 ## Props
 
-| Props              | Type    | Default | Description                                                                   |
-| ------------------ | ------- | ------- | ----------------------------------------------------------------------------- |
-| className          | string  | -       | -                                                                             |
-| zDistance          | number  | -       | Distance between slides by z axis                                             |
-| yDistance          | number  | -       | Distance between slides by y axis                                             |
-| transitionDuration | number  | -       | Slide transition speed. Number of milliseconds accepted.                      |
-| infiniteLoop       | boolean | -       | Flag to make the carousel loop around when it reaches the end.                |
-| dots               | boolean | -       | Flag to render pagination component.                                          |
-| dotsColor          | string  | -       | The fill color of pagination dots. Any valid CSS color is accepted            |
-| dotsActiveColor    | string  | -       | The fill color of the active pagination dot. Any valid CSS color is accepted. |
-| dotsSize           | string  | -       | The size of each pagination dot. Pixel values are accepted.                   |
-| dotsPadding        | string  | -       | The padding inside each pagination dot. Pixel values are accepted.            |
-| slideWidth         | string  | -       | Weight of the slides.                                                         |
-| slideHeight        | string  | -       | Height of the slides.                                                         |
+| Props              | Type    | Default     | Description                                                                   |
+| ------------------ | ------- | ----------- | ----------------------------------------------------------------------------- |
+| className          | string  | -           | -                                                                             |
+| zDistance          | number  | 50          | Distance between slides by z axis                                             |
+| yDistance          | number  | 30          | Distance between slides by y axis                                             |
+| transitionDuration | number  | 0.8         | Slide transition speed. Number of milliseconds accepted.                      |
+| infiniteLoop       | boolean | true        | Flag to make the carousel loop around when it reaches the end.                |
+| dots               | boolean | false       | Flag to render pagination component.                                          |
+| dotsColor          | string  | `#0000007d` | The fill color of pagination dots. Any valid CSS color is accepted            |
+| dotsActiveColor    | string  | `#ff0000`   | The fill color of the active pagination dot. Any valid CSS color is accepted. |
+| dotsSize           | string  | `8px`       | The size of each pagination dot. Pixel values are accepted.                   |
+| dotsPadding        | string  | `6px`       | The padding inside each pagination dot. Pixel values are accepted.            |
+| slideWidth         | string  | -           | Weight of the slides.                                                         |
+| slideHeight        | string  | -           | Height of the slides.                                                         |
 
 ## Events
 
