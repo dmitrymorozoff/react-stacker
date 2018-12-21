@@ -6,17 +6,17 @@ import { SlideEntry } from "./components/slide-entry/index";
 export class App extends React.Component<{}, {}> {
     public onChangeHandler = () => {
         // tslint:disable-next-line:no-console
-        console.log("on change slide");
+        console.log("On change slide");
     };
 
     public onPrevChangeHandler = () => {
         // tslint:disable-next-line:no-console
-        console.log("on prev change slide");
+        console.log("On prev change slide");
     };
 
     public onNextChangeHandler = () => {
         // tslint:disable-next-line:no-console
-        console.log("on next change slide");
+        console.log("On next change slide");
     };
 
     public render() {

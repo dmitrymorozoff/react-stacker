@@ -9,6 +9,8 @@ export interface IStackerSliderProps {
     slideHeight?: string;
     dotsColor?: string;
     dotsActiveColor?: string;
+    dotsSize?: string;
+    dotsPadding?: string;
     onChange?: () => void;
     onPrevChange?: () => void;
     onNextChange?: () => void;

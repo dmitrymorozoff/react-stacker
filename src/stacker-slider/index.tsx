@@ -17,6 +17,8 @@ export class StackerSlider extends React.PureComponent<IStackerSliderProps, ISta
         dots: false,
         dotsColor: "#fff",
         dotsActiveColor: "#ff0000",
+        dotsSize: "8px",
+        dotsPadding: "6px",
     };
     private refCurrentSlide: any;
     private timeout: NodeJS.Timer | null | undefined;
@@ -90,55 +92,6 @@ export class StackerSlider extends React.PureComponent<IStackerSliderProps, ISta
         return countSlides;
     };
 
-    public getEnhanceChildrens = () => {
-        const { children } = this.props;
-        const { countSlides, currentActiveSlide } = this.state;
-        const childrenArray: any = [...React.Children.toArray(children)];
-        const childrenWithProps: any = [];
-
-        for (let i = 0; i < countSlides; i++) {
-            const {
-                translateX,
-                translateY,
-                translateZ,
-                transition,
-                zIndex,
-                opacity,
-                rotateZ,
-            } = this.state.slides[i];
-
-            const slide = React.cloneElement(childrenArray[i], {
-                onMouseDown: this.setEventOnFirstSlide(i),
-                setRef: this.setCurrentSlideRef(i),
-                style: {
-                    opacity,
-                    zIndex,
-                    transform: `translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateZ(${rotateZ}deg)`,
-                    transition,
-                    cursor: i === currentActiveSlide ? "grab" : "default",
-                },
-            });
-
-            childrenWithProps[i] = slide;
-        }
-
-        return childrenWithProps;
-    };
-
-    public setEventOnFirstSlide = (slideIndex: number) => {
-        const { currentActiveSlide } = this.state;
-        return slideIndex === currentActiveSlide ? this.handleMouseDown : undefined;
-    };
-
-    public setCurrentSlideRef = (slideIndex: number) => {
-        const { currentActiveSlide } = this.state;
-        return slideIndex === currentActiveSlide
-            ? (ref: HTMLElement) => {
-                  this.refCurrentSlide = ref;
-              }
-            : null;
-    };
-
     public handleMouseDown = (event: MouseEvent) => {
         event.preventDefault();
 
@@ -159,7 +112,7 @@ export class StackerSlider extends React.PureComponent<IStackerSliderProps, ISta
         if (!this.isCorrectMovingDelta(startMovingPosition, mouseX)) {
             return;
         }
-        this.checkDirection(newTransX, direction);
+        this.setDirection(newTransX, direction);
 
         const newTransY = -Math.abs(newTransX / 15);
         const newRotZ = this.getRotateZCard(newTransX);
@@ -314,7 +267,7 @@ export class StackerSlider extends React.PureComponent<IStackerSliderProps, ISta
         return true;
     };
 
-    public checkDirection = (newTransX: number, direction: 0 | 1 | -1) => {
+    public setDirection = (newTransX: number, direction: 0 | 1 | -1) => {
         if (newTransX < 0 && direction === 0) {
             this.setState({
                 direction: -1,
@@ -433,9 +386,67 @@ export class StackerSlider extends React.PureComponent<IStackerSliderProps, ISta
         return translateX / Math.sqrt(this.refCurrentSlide.offsetWidth);
     };
 
+    public setEventOnFirstSlide = (slideIndex: number) => {
+        const { currentActiveSlide } = this.state;
+        return slideIndex === currentActiveSlide ? this.handleMouseDown : undefined;
+    };
+
+    public setCurrentSlideRef = (slideIndex: number) => {
+        const { currentActiveSlide } = this.state;
+        return slideIndex === currentActiveSlide
+            ? (ref: HTMLElement) => {
+                  this.refCurrentSlide = ref;
+              }
+            : null;
+    };
+
+    public getEnhanceChildrens = () => {
+        const { children } = this.props;
+        const { countSlides, currentActiveSlide } = this.state;
+        const childrenArray: any = [...React.Children.toArray(children)];
+        const childrenWithProps: any = [];
+
+        for (let i = 0; i < countSlides; i++) {
+            const {
+                translateX,
+                translateY,
+                translateZ,
+                transition,
+                zIndex,
+                opacity,
+                rotateZ,
+            } = this.state.slides[i];
+
+            const slide = React.cloneElement(childrenArray[i], {
+                onMouseDown: this.setEventOnFirstSlide(i),
+                setRef: this.setCurrentSlideRef(i),
+                style: {
+                    opacity,
+                    zIndex,
+                    transform: `translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateZ(${rotateZ}deg)`,
+                    transition,
+                    cursor: i === currentActiveSlide ? "grab" : "default",
+                },
+            });
+
+            childrenWithProps[i] = slide;
+        }
+
+        return childrenWithProps;
+    };
+
     public render() {
         const { countSlides, currentActiveSlide } = this.state;
-        const { dots, className, slideWidth, slideHeight, dotsColor, dotsActiveColor } = this.props;
+        const {
+            dots,
+            className,
+            slideWidth,
+            slideHeight,
+            dotsColor,
+            dotsActiveColor,
+            dotsSize,
+            dotsPadding,
+        } = this.props;
         return (
             <StackerWrapper className={className} slideWidth={slideWidth} slideHeight={slideHeight}>
                 {this.getEnhanceChildrens()}
@@ -445,6 +456,8 @@ export class StackerSlider extends React.PureComponent<IStackerSliderProps, ISta
                         activeSlide={currentActiveSlide}
                         dotsColor={dotsColor}
                         dotsActiveColor={dotsActiveColor}
+                        dotsSize={dotsSize}
+                        dotsPadding={dotsPadding}
                     />
                 )}
             </StackerWrapper>

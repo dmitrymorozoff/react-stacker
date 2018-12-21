@@ -7,21 +7,25 @@ interface IStackerPaginationProps {
     className?: string;
     dotsColor?: string;
     dotsActiveColor?: string;
+    dotsSize?: string;
+    dotsPadding?: string;
 }
 
 interface IStackerBulletProps {
     isActive: boolean;
     dotsColor?: string;
     dotsActiveColor?: string;
+    dotsSize?: string;
+    dotsPadding?: string;
 }
 
 const StackerBullet = styled.div`
-    width: 8px;
-    height: 8px;
+    width: ${(props: IStackerBulletProps) => props.dotsSize};
+    height: ${(props: IStackerBulletProps) => props.dotsSize};
     border-radius: 50%;
     background-color: ${(props: IStackerBulletProps) =>
         props.isActive ? props.dotsActiveColor : props.dotsColor};
-    margin: 0 6px;
+    margin: 0 ${(props: IStackerBulletProps) => props.dotsPadding};
     transition: 0.4s;
 `;
 
@@ -38,7 +42,14 @@ const StackerPaginationWrapper = styled.div`
 
 export class StackerPagination extends React.Component<IStackerPaginationProps, {}> {
     public getBullets = () => {
-        const { countSlides, activeSlide, dotsColor, dotsActiveColor } = this.props;
+        const {
+            countSlides,
+            activeSlide,
+            dotsColor,
+            dotsActiveColor,
+            dotsSize,
+            dotsPadding,
+        } = this.props;
         const bullets = [];
         for (let i = 0; i < countSlides; i++) {
             const isActiveSlide = i === activeSlide;
@@ -48,6 +59,8 @@ export class StackerPagination extends React.Component<IStackerPaginationProps, 
                     key={i.toString()}
                     dotsColor={dotsColor}
                     dotsActiveColor={dotsActiveColor}
+                    dotsSize={dotsSize}
+                    dotsPadding={dotsPadding}
                 />,
             );
         }
@@ -55,6 +68,8 @@ export class StackerPagination extends React.Component<IStackerPaginationProps, 
     };
 
     public render() {
-        return <StackerPaginationWrapper {...this.props}>{this.getBullets()}</StackerPaginationWrapper>;
+        return (
+            <StackerPaginationWrapper {...this.props}>{this.getBullets()}</StackerPaginationWrapper>
+        );
     }
 }
